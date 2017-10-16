@@ -1,0 +1,58 @@
+
+html,body{
+ height: 100%;
+  font-weight: 300;
+  font-family: "Helvetica Neue",Helvetica,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","微软雅黑",Arial,sans-serif;
+}
+#app {
+  height: 100%;
+}
+#login .weui-cell{
+  background: #F6F6F6;
+  border-radius: 8px;
+  height: 45px;
+  line-height: 45px;
+  padding: 5px 10px;
+}
+
+#login .weui-btn{
+  height: 45px;
+  line-height: 45px;
+  font-size: 1rem;
+  letter-spacing:5px;
+}
+
+#login .weui-btn_primary{
+  background: #172547;
+  border-radius: 8px;
+}
+
+#report .weui-cells {
+  margin-top: 0;
+  background: #132F40;
+}
+
+#report .vux-cell-value {
+  color: #fff;
+}
+
+#report .weui-cell_access .weui-cell__ft:before {
+  content: " ";
+  display: inline-block;
+  height: 6px;
+  width: 6px;
+  border-width: 0 0 2px 2px ;
+  border-color: #C8C8CD;
+  border-style: solid;
+  -webkit-transform: matrix(0.71, 0.71, -0.71, 0.71, 0, 0);
+  transform: matrix(0.71, 0.71, -0.71, 0.71, 0, 0);
+  position: relative;
+  top: -2px;
+  position: absolute;
+  top: 50%;
+  margin-top: -4px;
+  left: -13px;
+}
+#report .weui-cells:before,#report .weui-cells:after {
+  border: none!important;
+}
