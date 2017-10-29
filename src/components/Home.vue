@@ -7,26 +7,28 @@
     </div>
     <div class="content">
       <div class="top">
-        <div class="spic"><img src="../assets/portrait.jpeg" width="100" height="100"/></div>
+        <div class="spic"><img if="!userInfo.img_url" src="../assets/portrait.jpeg" width="100" height="100"/>
+          <img if="userInfo.img_url" :src="userInfo.img_url" width="100" height="100"/>
+        </div>
       </div>
-      <div class="snm">吴亦凡</div>
+      <div class="snm">{{userInfo.student_name}}</div>
       <div class="mid">
         <div class="mid-row">
           <span class="dis"><img class="img" src="../assets/sId.png" height="20"/>学号</span>
-          <span class="val">12882</span>
+          <span class="val">{{userInfo.student_code}}</span>
         </div>
         <div class="mid-row">
           <span class="dis"><img class="img" src="../assets/school.png" height="20"/>学校</span>
-          <span class="val">清华大学</span>
+          <span class="val">{{userInfo.school_des}}</span>
         </div>
         <div class="mid-row">
           <span class="dis"><img class="img" src="../assets/class.png" height="20"/>班级</span>
-          <span class="val">5年3班</span>
+          <span class="val">{{userInfo.grade_des}}{{userInfo.class_des}}</span>
         </div>
       </div>
     </div>
     <div class="content1" @click="toReport">
-      <div class="text">最近睡眠评分：<span class="cont">89</span>
+      <div class="text">最近睡眠评分：<span class="cont">{{userInfo.last_mark}}</span>
       </div>
     </div>
   </div>
@@ -39,13 +41,17 @@ export default{
   name: 'home',
   data() {
     return {
-      username: '',
-      password: '',
+      userInfo: '',
     };
   },
+  created(){
+    this.initData();
+  },
   methods: {
-    jump() {
-      this.$router.push({ name: 'Register' });
+    initData() {
+      this.$resource('api/student_info.php').get().then((response) => {
+        this.userInfo = response.body.result;
+      })
     },
     toReport() {
       this.$router.push({ name: 'Report' });

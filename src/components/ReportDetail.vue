@@ -6,51 +6,45 @@
       <span></span>
     </div>
     <div class="cont-top">
-      <span class="my">吴亦凡 - NO:23333 </span>
-      <span class="pj">评价：<i>良</i></span>
+      <span class="my">{{detailData.student_name}} -{{detailData.student_code}} </span>
+      <span class="pj">评价：<i>{{detailData.evaluation}}</i></span>
     </div>
     <div class="cont-md">
-      <div class="md-head"><span class="text"><img src="../assets/shuju.png" height="24"/>数据监护 </span><span class="num">89</span>%</div>
+      <div class="md-head"><span class="text"><img src="../assets/shuju.png" height="24"/>数据监护 </span>
+        <span class="num">{{monitor.sleep_total_pre}}%</span>
+      </div>
       <div class="pre-wrap">
         <span class="pre p2">
           在床时长 <br>
-           <span>3时32分</span>
+           <span>{{monitor.bed_duration}}</span>
         </span>
         <span class="pre p1">
           睡眠时长 <br>
-          <span>3时32分</span>
+          <span>{{monitor.sleep_duration}}</span>
         </span>
         <span class="pre p3">
           清醒时长 <br>
-           <span>3时32分</span>
+           <span>{{monitor.wake_duration}}</span>
         </span>
       </div>
       <div id="shuju">
       </div>
     </div>
     <div class="cont-md">
-      <div class="md-head"><span class="text"><img src="../assets/xintiao.png" height="24"/>心跳 </span><span class="num">69 <i> 分/次</i></span></div>
+      <div class="md-head"><span class="text"><img src="../assets/xintiao.png" height="24"/>心跳 </span><span class="num">{{heartbeat.average}} <i> 分/次</i></span></div>
       <div id="xintiao">
       </div>
     </div>
     <div class="cont-md">
-      <div class="md-head"><span class="text"><img src="../assets/huxi.png" height="24"/>呼吸率 </span><span class="num">69 <i> 分/次</i></span></div>
+      <div class="md-head"><span class="text"><img src="../assets/huxi.png" height="24"/>呼吸率 </span><span class="num"> {{breathe.average}}<i> 分/次</i></span></div>
       <div id="huxi">
       </div>
     </div>
     <div class="cont-md">
-      <div class="md-head"><span class="text"><img src="../assets/qiju.png" height="24"/>起居事件 </span><span class="num">69 <i> 次</i></span></div>
-      <div class="evt">
-        <div class="evt1"><img src="../assets/time.png" height="25"/>21:30 入寓</div>
-        <div class="evt2">正常</div>
-      </div>
-      <div class="evt">
-        <div class="evt1"><img src="../assets/time.png" height="25"/>23:30 报警</div>
-        <div class="evt2">频繁体动</div>
-      </div>
-      <div class="evt">
-        <div class="evt1"><img src="../assets/time.png" height="25"/>24:30 事件</div>
-        <div class="evt2">离床</div>
+      <div class="md-head"><span class="text"><img src="../assets/qiju.png" height="24"/>起居事件 </span><span class="num">{{event.total}} <i> 次</i></span></div>
+      <div class="evt" v-for="item in event.data">
+        <div class="evt1"><img src="../assets/time.png" height="25"/>{{item.time}}  {{item.name}}</div>
+        <div class="evt2">{{item.des}}</div>
       </div>
     </div>
   </div>
@@ -64,14 +58,31 @@ export default{
   name: 'reportDetail',
   data() {
     return {
-      username: '',
-      password: '',
+      flag: '',
+      reportId: '',
+      detailData: '',
+      monitor: '',
+      heartbeat: '',
+      breathe: '',
+      event: '',
     };
   },
-  mounted() {
-    this.initChart();
+  created(){
+    this.flag = this.$route.params.flag;
+    this.reportId = this.$route.params.id;
+    this.initData(this.reportId);
   },
   methods: {
+    initData(id) {
+      this.$resource('api/day_report_detail.php').get({report_id:id}).then((response) => {
+        this.detailData = response.body.result;
+        this.monitor = response.body.result.data_monitor;
+        this.heartbeat = response.body.result.heartbeat;
+        this.breathe = response.body.result.breathe;
+        this.event = response.body.result.event;
+        this.initChart();
+      })
+    },
     back() {
       this.$router.push({ name: 'Report' });
     },
@@ -108,7 +119,7 @@ export default{
               color: '#57617B',
             },
           },
-          data: ['13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00', '23:00', '24:00'],
+          data: this.monitor.x_data,
         }],
         yAxis: [{
           type: 'value',
@@ -166,7 +177,7 @@ export default{
 
             },
           },
-          data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1],
+          data: this.monitor.y_deep,
         }, {
           name: '浅睡',
           type: 'line',
@@ -200,7 +211,7 @@ export default{
 
             },
           },
-          data: [1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          data: this.monitor.y_light,
         }, {
           name: '清醒',
           type: 'line',
@@ -234,7 +245,7 @@ export default{
               borderWidth: 12,
             },
           },
-          data: [0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0],
+          data: this.monitor.y_wake,
         },
         ],
       };
@@ -265,7 +276,7 @@ export default{
               color: '#57617B',
             },
           },
-          data: ['13:00', '13:05', '13:10', '13:15', '13:20', '13:25', '13:30', '13:35', '13:40', '13:45', '13:50', '13:55'],
+          data: this.heartbeat.x_data,
         }],
         yAxis: [{
           type: 'value',
@@ -323,16 +334,102 @@ export default{
 
             },
           },
-          data: [220, 182, 191, 134, 150, 120, 110, 125, 145, 122, 165, 122],
+          data: this.heartbeat.y_data,
+        },
+        ],
+      };
+
+      const option3 = {
+        legend: {
+          icon: 'rect',
+          itemWidth: 14,
+          itemHeight: 5,
+          itemGap: 13,
+          right: '4%',
+          textStyle: {
+            fontSize: 12,
+            color: '#F1F1F3',
+          },
+        },
+        grid: {
+          left: '3%',
+          right: '4%',
+          bottom: '3%',
+          containLabel: true,
+        },
+        xAxis: [{
+          type: 'category',
+          boundaryGap: false,
+          axisLine: {
+            lineStyle: {
+              color: '#57617B',
+            },
+          },
+          data: this.breathe.x_data,
+        }],
+        yAxis: [{
+          type: 'value',
+          name: '次/分',
+          axisTick: {
+            show: false,
+          },
+          axisLine: {
+            lineStyle: {
+              color: '#57617B',
+            },
+          },
+          axisLabel: {
+            margin: 10,
+            textStyle: {
+              fontSize: 14,
+            },
+          },
+          splitLine: {
+            lineStyle: {
+              color: '#57617B',
+            },
+          },
+        }],
+        series: [{
+          name: '移动',
+          type: 'line',
+          smooth: true,
+          symbol: 'circle',
+          symbolSize: 5,
+          showSymbol: false,
+          lineStyle: {
+            normal: {
+              width: 1,
+            },
+          },
+          areaStyle: {
+            normal: {
+              color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                offset: 0,
+                color: 'rgba(137, 189, 27, 0.3)',
+              }, {
+                offset: 0.8,
+                color: 'rgba(137, 189, 27, 0)',
+              }], false),
+              shadowColor: 'rgba(0, 0, 0, 0.1)',
+              shadowBlur: 10,
+            },
+          },
+          itemStyle: {
+            normal: {
+              color: 'rgb(137,189,27)',
+              borderColor: 'rgba(137,189,2,0.27)',
+              borderWidth: 12,
+
+            },
+          },
+          data: this.breathe.y_data,
         },
         ],
       };
       myChart.setOption(option);
       myChart2.setOption(option2);
-      myChart3.setOption(option2);
-    },
-    detail(f) {
-      this.$router.push({ name: 'ReportDetail', param: { flag: f } });
+      myChart3.setOption(option3);
     },
   },
   components: {

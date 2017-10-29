@@ -38,7 +38,13 @@ export default{
       this.$router.push({ name: 'Register' });
     },
     subLogin() {
-      this.$router.push({ name: 'Home' });
+      this.$resource('api/login.php').save({}, {username:this.username, password:this.password}).then((response) => {
+        if (response.body.code == 200) {
+          this.$router.push({ name: 'Home' });
+        } else {
+          this.alertMsg("error", response.body.msg?response.body.msg:'登录失败')
+        }
+      })
     },
   },
   components: {

@@ -10,13 +10,13 @@
       <span></span>
     </div>
     <div class="cont-top">
-      <span class="my">吴亦凡 - NO:23333 </span>
-      <span class="pj">评价：<i>良</i></span>
+      <span class="my">{{reportData.student_name}} - {{reportData.student_code}} </span>
+      <span class="pj">评价：<i>{{reportData.evaluation}}</i></span>
     </div>
     <div class="chart" id="pie">
     </div>
     <div class="cont-md" >
-      <div class="text">入寓总时长 <span class="num">89</span> h</div>
+      <div class="text">入寓总时长 <span class="num">{{reportData.sleep_total_duration}}</span> </div>
       <div class="pre-wrap1">
         <span class="pre p1" :style="{ width: p1W + '%' }">
         </span>
@@ -30,11 +30,11 @@
           深睡 <br>
           3h32min
         </span>
-        <span class="pre p2" :style="{ width: p2WT + '%' }">
+        <span class="pre p2" :style="{ width: p2WT + '%' }" style="text-align: center">
           浅睡 <br>
            3h32min
         </span>
-        <span class="pre p3" :style="{ width: p3WT + '%' }">
+        <span class="pre p3" :style="{ width: p3WT + '%' }" style="text-align: right">
           清醒 <br>
            3h32min
         </span>
@@ -43,15 +43,15 @@
     <div class="bm">
       <div class="grid-content" @click="detail(1)">
         <div  class="pic"><img src="../assets/xintiao.png"/>心跳</div>
-        <div class="ft"><span>68</span> 次/分</div>
+        <div class="ft"><span>{{reportData.heartbeat}}</span> 次/分</div>
       </div>
       <div class="grid-content" @click="detail(2)">
         <div  class="pic"><img src="../assets/huxi.png" />呼吸率</div>
-        <div class="ft"><span>68</span> 次/分</div>
+        <div class="ft"><span>{{reportData.breathe}}</span> 次/分</div>
       </div>
       <div class="grid-content" @click="detail(3)">
         <div class="pic"><img src="../assets/qiju.png"/>起居事件</div>
-        <div class="ft"><span>68</span> 次</div>
+        <div class="ft"><span>{{reportData.event}}</span> 次</div>
       </div>
     </div>
   </div>
@@ -65,27 +65,36 @@ export default{
   name: 'home',
   data() {
     return {
-      username: '',
-      password: '',
-      p1W: 10,
+      p1W: 30,
       p2W: 30,
-      p3W: 60,
-      p1WT: 20,
-      p2WT: 30,
-      p3WT: 50,
-      rdate: '2015-11-12',
+      p3W: 40,
+      p1WT: 33,
+      p2WT: 33,
+      p3WT: 33,
+      rdate: '2017-01-01',
+      reportData: '',
+      reportPre: '',
     };
   },
-  mounted() {
-    this.initChart();
+  created(){
+    this.rdate = (new Date()).DateAddORSub("d","-",1).Format("yyyy-MM-dd");
+    this.initData(this.rdate);
   },
   methods: {
-    jump() {
-      this.$router.push({ name: 'Register' });
+    initData(date) {
+      this.$resource('api/day_report.php').get({date:date}).then((response) => {
+        this.reportData = response.body.result;
+        this.reportPre = response.body.result.sleep_total_pre;
+
+        this.p1W = response.body.result.sleep_deep_pre;
+        this.p2W = response.body.result.sleep_light_pre;
+        this.p3W = response.body.result.sleep_wake_pre;
+
+        this.initChart();
+      })
     },
     initChart() {
       const myChart = echarts.init(document.getElementById('pie'));
-
       const option = {
         title: {
           text: '睡眠占比',
@@ -124,7 +133,7 @@ export default{
           hoverAnimation: false,
           center: ['50%', '50%'],
           data: [{
-            value: 25,
+            value: parseInt(this.reportPre),
             label: {
               normal: {
                 formatter: '{d}%',
@@ -145,7 +154,7 @@ export default{
               },
             },
           }, {
-            value: 75,
+            value: 100 - parseInt(this.reportPre),
             name: 'invisible',
             itemStyle: {
               normal: {
@@ -167,9 +176,11 @@ export default{
       myChart.setOption(option);
     },
     detail(f) {
-      this.$router.push({ name: 'ReportDetail', param: { flag: f } });
+      this.$router.push({ name: 'ReportDetail', params: { flag: f ,id: this.reportData.report_id} });
     },
-    changeDate() {
+    changeDate(p) {
+      this.rdate = p;
+      this.initData(this.rdate);
     },
   },
   components: {
@@ -253,8 +264,7 @@ export default{
 
   .cont-md .num {
     color: #63BAD4;
-    font-size: 1rem;
-    font-weight: bold;
+    font-size: 1.2rem;
   }
 
   .cont-md .text {

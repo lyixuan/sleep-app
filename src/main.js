@@ -8,12 +8,14 @@ import Vuex from 'vuex';
 import { AjaxPlugin } from 'vux';
 import App from '@/App';
 import router from '@/router';
+import VueResource from 'vue-resource';
 
 Vue.use(AjaxPlugin);
 Vue.use(VueRouter);
 Vue.use(Vuex);
-
+Vue.use(VueResource);
 require('es6-promise').polyfill();// 兼容低版本浏览器
+require('./tools.js');
 
 FastClick.attach(document.body);// 移除移动端点击延迟
 
